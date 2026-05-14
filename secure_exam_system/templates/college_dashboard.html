@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard-page">
+
+    <div class="topbar">
+        <h2>Secure Exam System</h2>
+        <div class="topbar-right">
+            <span class="role">College</span>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        </div>
+    </div>
+
+    <div class="dashboard">
+
+        <div class="dashboard-header">
+            <h1>Welcome, {{ college_name }}</h1>
+            <p>Download examination papers once they are unlocked</p>
+        </div>
+
+        <div class="card college-card">
+            <h3>Available Question Papers</h3>
+
+            {% if papers %}
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>File</th>
+                    <th>Status</th>
+                    <th>PDF Password</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for paper in papers %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ paper.paper_name }}</td>
+
+                    <td>
+                        {% if paper.unlock_time <= now %}
+                            <span class="badge unlocked">Unlocked</span>
+                            <br>
+                            <small class="muted">
+                                Unlocked at: {{ paper.unlock_time.strftime("%d-%m-%Y %I:%M %p") }}
+                            </small>
+                        {% else %}
+                            <span class="badge locked"
+                                  data-unlock="{{ paper.unlock_time.isoformat() }}"
+                                  id="status-{{ paper.id }}">
+                                Locked
+                            </span>
+                            <br>
+                            <small class="muted">
+                                Unlocks at: {{ paper.unlock_time.strftime("%d-%m-%Y %I:%M %p") }}
+                            </small>
+                        {% endif %}
+                    </td>
+
+                    <td id="password-{{ paper.id }}">
+                        {% if paper.unlock_time <= now %}
+                            {{ paper.pdf_password }}
+                        {% else %}
+                            <span class="muted">Locked</span>
+                        {% endif %}
+                    </td>
+
+                    <td id="action-{{ paper.id }}">
+                        {% if paper.unlock_time <= now %}
+                            <a href="{{ url_for('download_paper', paper_id=paper.id) }}" onclick="downloadSuccess()">
+                                <button class="btn-primary small">Download</button>
+                            </a>
+                        {% else %}
+                            <span class="muted">Not available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+                <p class="muted">No papers uploaded yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+function downloadSuccess() {
+    setTimeout(() => {
+        alert("Downloaded successfully");
+    }, 800);
+}
+
+function updateCountdowns() {
+    const now = new Date().getTime();
+
+    document.querySelectorAll("[data-unlock]").forEach(el => {
+        const unlockTime = new Date(el.dataset.unlock).getTime();
+        const diff = unlockTime - now;
+
+        const paperId = el.id.replace("status-", "");
+        const actionCell = document.getElementById("action-" + paperId);
+        const passwordCell = document.getElementById("password-" + paperId);
+
+        if (diff <= 0) {
+            el.innerHTML = "Unlocked";
+            el.classList.remove("locked");
+            el.classList.add("unlocked");
+
+            actionCell.innerHTML = `
+                <a href="/download/${paperId}" onclick="downloadSuccess()">
+                    <button class="btn-primary small">Download</button>
+                </a>
+            `;
+
+            passwordCell.innerHTML = passwordCell.dataset.password || passwordCell.innerHTML;
+        } else {
+            const hrs = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            el.innerHTML = `Locked (${hrs}h ${mins}m ${secs}s)`;
+        }
+    });
+}
+
+setInterval(updateCountdowns, 1000);
+updateCountdowns();
+</script>
+
+{% endblock %}

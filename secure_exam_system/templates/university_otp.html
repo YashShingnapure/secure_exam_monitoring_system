@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #f5f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .card {
+            width: 420px;
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            margin-top: 6px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #eef4ff;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #000, #333);
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-resend {
+            width: 100%;
+            padding: 13px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: white;
+            color: #111;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: red;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>OTP Verification</h2>
+    <div class="subtitle">Enter the OTP sent to the university email</div>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if success %}
+        <div class="success">{{ success }}</div>
+    {% endif %}
+
+    <!-- VERIFY OTP FORM -->
+    <form method="POST">
+        <div class="form-group">
+            <label>Enter OTP</label>
+            <input type="text" name="otp" required>
+        </div>
+
+        <button class="btn">Verify OTP</button>
+    </form>
+
+    <!-- RESEND OTP FORM -->
+    <form method="GET" action="{{ url_for('resend_university_otp') }}">
+        <button class="btn-resend" type="submit">Resend OTP</button>
+    </form>
+
+</div>
+
+</body>
+</html>

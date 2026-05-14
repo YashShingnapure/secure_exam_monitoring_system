@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SecureExam System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .landing-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+            padding: 40px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .nav-buttons a {
+            margin-left: 16px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: black;
+        }
+
+        .nav-buttons a.primary {
+            background: linear-gradient(135deg, #000, #333);
+            color: white;
+            border: none;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .hero-actions a {
+            padding: 14px 26px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 14px;
+            display: inline-block;
+        }
+
+        .hero-actions a.primary {
+            background: linear-gradient(135deg, #000, #333);
+            color: white;
+        }
+
+        .hero-actions a.secondary {
+            border: 1px solid #ddd;
+            color: black;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .info-card h3 {
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .info-card ul {
+            list-style: none;
+        }
+
+        .info-card li {
+            padding: 10px 0;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="landing-container">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">SecureExam</div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+
+        <div>
+            <h1>Secure Examination Paper Management</h1>
+            <p>
+                SecureExam ensures confidential handling of university question papers.
+                Universities upload papers securely, and registered colleges gain controlled
+                access with full traceability and compliance.
+            </p>
+
+            <div class="hero-actions">
+                <a href="/college-auth" class="primary">College Access</a>
+                <a href="/university-login" class="secondary">University Login</a>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>Why SecureExam?</h3>
+            <ul>
+                <li>🔒 End-to-end secure paper handling</li>
+                <li>🏫 Multi-college access system</li>
+                <li>📄 Centralized university control</li>
+                <li>⏱ Timed paper availability</li>
+                <li>📊 Audit & access logs</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

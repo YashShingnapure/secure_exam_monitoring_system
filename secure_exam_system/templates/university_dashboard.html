@@ -1,0 +1,680 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard-header">
+    <h1>University Admin Panel</h1>
+    <p>Upload and manage examination papers securely</p>
+</div>
+
+<div style="text-align:center; margin-bottom: 20px;">
+    <a href="{{ url_for('university_change_password') }}" class="btn-primary" style="text-decoration:none; padding:10px 18px; display:inline-block;">
+        Change Password
+    </a>
+</div>
+
+<!-- UPLOAD EXAM PAPER -->
+<div class="card" style="max-width:1300px; margin:0 auto 30px auto;">
+    <h3>Upload Exam Paper</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <!-- COURSE TYPE -->
+        <div class="form-group">
+            <label>Course Type</label>
+            <select name="course_type" id="course_type" required>
+                <option value="">Select Course Type</option>
+                <option value="UG">UG</option>
+                <option value="PG">PG</option>
+                <option value="PHD">PHD</option>
+            </select>
+        </div>
+
+        <!-- STREAM -->
+        <div class="form-group">
+            <label>Stream</label>
+            <select name="stream" id="stream" required>
+                <option value="">Select Stream</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Arts">Arts</option>
+                <option value="Commerce">Commerce</option>
+                <option value="Science">Science</option>
+                <option value="Medical">Medical</option>
+                <option value="Law">Law</option>
+                <option value="Management">Management</option>
+            </select>
+        </div>
+
+        <!-- COURSE -->
+        <div class="form-group">
+            <label>Course</label>
+            <select name="course" id="course" required>
+                <option value="">Select Course</option>
+            </select>
+        </div>
+
+        <!-- SPECIALIZATION -->
+        <div class="form-group">
+            <label>Specialization</label>
+            <select name="specialization" id="specialization" required>
+                <option value="">Select Specialization</option>
+            </select>
+        </div>
+
+        <!-- SEMESTER -->
+        <div class="form-group">
+            <label>Semester</label>
+            <select name="semester" required>
+                <option value="">Select Semester</option>
+                <option value="Sem 1">Sem 1</option>
+                <option value="Sem 2">Sem 2</option>
+                <option value="Sem 3">Sem 3</option>
+                <option value="Sem 4">Sem 4</option>
+                <option value="Sem 5">Sem 5</option>
+                <option value="Sem 6">Sem 6</option>
+                <option value="Sem 7">Sem 7</option>
+                <option value="Sem 8">Sem 8</option>
+            </select>
+        </div>
+
+        <!-- PAPER NAME -->
+        <div class="form-group">
+            <label>Paper Name</label>
+            <input
+                type="text"
+                name="paper_name"
+                placeholder="Eg: Data Structures – Mid Sem"
+                required
+            >
+        </div>
+
+        <!-- PDF PASSWORD -->
+        <div class="form-group">
+            <label>Paper Password (PDF)</label>
+            <input type="text" name="pdf_password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Original PDF Password (if already protected)</label>
+            <input type="text" name="original_pdf_password" placeholder="Leave blank if not protected">
+        </div>
+
+        <!-- PDF FILE -->
+        <div class="form-group">
+            <label>Exam Paper (PDF)</label>
+            <input type="file" name="paper" accept=".pdf" multiple required>
+            <small style="color:#666;">Upload minimum 1 and maximum 5 PDFs</small>
+        </div>
+
+        <!-- EXAM TIME -->
+        <div class="form-group">
+            <label>Exam Date & Time</label>
+            <input type="datetime-local" name="exam_time" id="exam_time" required>
+        </div>
+
+        <!-- SELECT CENTRES -->
+        <div class="form-group">
+            <label>Select Centres (Colleges)</label>
+
+            <div style="max-height:150px; overflow-y:auto; border:1px solid #ccc; padding:10px; border-radius:8px;">
+                {% for college in colleges %}
+                    <div style="margin-bottom:6px;">
+                        <label>
+                            <input type="checkbox" name="centres" value="{{ college['id'] }}">
+                            {{ college['college_name'] }} ({{ college['centre_code'] }})
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <small>Select one or more colleges</small>
+
+        <button class="btn-primary">Upload Paper</button>
+    </form>
+</div>
+
+<!-- UPLOADED PAPERS -->
+<div class="card" style="max-width:1300px; margin:0 auto;">
+    <h3>Uploaded Papers</h3>
+
+    {% if papers %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Course Type</th>
+                <th>Stream</th>
+                <th>Course</th>
+                <th>Specialization</th>
+                <th>Semester</th>
+                <th>Paper Name</th>
+                <th>Unlock Time</th>
+                <th>Action</th>
+            </tr>
+
+            {% for paper in papers %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ paper.course_type }}</td>
+                <td>{{ paper.stream }}</td>
+                <td>{{ paper.course }}</td>
+                <td>{{ paper.specialization }}</td>
+                <td>{{ paper.semester }}</td>
+                <td>{{ paper.paper_name }}</td>
+                <td>{{ paper.unlock_time }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('delete_paper', paper_id=paper.id) }}">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="muted">No papers uploaded yet.</p>
+    {% endif %}
+</div>
+
+<!-- AUDIT LOGS -->
+<div class="card" style="max-width:1300px; margin:30px auto 0 auto;">
+    <h3>Audit & Logs</h3>
+
+    {% if logs %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>User Type</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Paper</th>
+                <th>Timestamp</th>
+            </tr>
+
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.user_type }}</td>
+                <td>{{ log.user_name or log.user_email }}</td>
+                <td>{{ log.action }}</td>
+                <td>{{ log.paper_name or "-" }}</td>
+                <td>{{ log.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="muted">No logs available yet.</p>
+    {% endif %}
+</div>
+
+<!-- SAME UI STYLE FOR SELECT DROPDOWNS -->
+<style>
+    select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        outline: none;
+        background: white;
+        transition: 0.2s ease;
+    }
+
+    select:focus {
+        border: 1px solid black;
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    }
+</style>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+    th, td {
+        padding: 14px 18px;
+        text-align: left;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    th {
+        font-weight: 600;
+    }
+
+    /* Makes table scrollable on small screens instead of overlapping */
+    .card table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+</style>
+
+<!-- DYNAMIC STREAM → COURSE → SPECIALIZATION -->
+<script>
+const data = {
+    "Engineering": {
+    "UG": {
+        "B.Tech": [
+            "Computer Science Engineering (CSE)",
+            "Information Technology (IT)",
+            "Mechanical Engineering",
+            "Civil Engineering",
+            "Electrical Engineering",
+            "Electronics & Telecommunication (ENTC)",
+            "Artificial Intelligence (AI)",
+            "Data Science",
+            "Cyber Security",
+            "Artificial Intelligence & Machine Learning (AI/ML)",
+            "Artificial Intelligence & Data Science (AI/DS)",
+            "Chemical Engineering",
+            "Aerospace Engineering",
+            "Biotechnology Engineering",
+            "Automobile Engineering",
+            "Instrumentation Engineering",
+            "Marine Engineering",
+            "Mining Engineering",
+            "Petroleum Engineering",
+            "Agricultural Engineering",
+            "Biomedical Engineering",
+            "Environmental Engineering",
+            "Textile Engineering",
+            "Food Technology / Food Engineering",
+            "Robotics & Automation",
+            "Internet of Things (IoT)"
+        ],
+        "B.E": [
+            "Computer Science Engineering (CSE)",
+            "Information Technology (IT)",
+            "Mechanical Engineering",
+            "Civil Engineering",
+            "Electrical Engineering",
+            "Electronics & Telecommunication (ENTC)",
+            "Artificial Intelligence (AI)",
+            "Data Science",
+            "Cyber Security",
+            "Artificial Intelligence & Machine Learning (AI/ML)",
+            "Artificial Intelligence & Data Science (AI/DS)",
+            "Chemical Engineering",
+            "Aerospace Engineering",
+            "Biotechnology Engineering",
+            "Automobile Engineering",
+            "Instrumentation Engineering",
+            "Marine Engineering",
+            "Mining Engineering",
+            "Petroleum Engineering",
+            "Agricultural Engineering",
+            "Biomedical Engineering",
+            "Environmental Engineering",
+            "Textile Engineering",
+            "Food Technology / Food Engineering",
+            "Robotics & Automation",
+            "Internet of Things (IoT)"
+        ],
+        "BCA": ["NA"]
+    },
+    "PG": {
+        "M.Tech": [
+            "Computer Science Engineering",
+            "Machine Design",
+            "Structural Engineering",
+            "Power Systems",
+            "VLSI Design",
+            "Artificial Intelligence",
+            "Data Science",
+            "Thermal Engineering",
+            "Chemical Engineering"
+        ],
+        "M.E":[
+            "M.E. in Computer Science & Engineering",
+            "M.E. in Information Technology",
+            "M.E. in Software Engineering",
+            "M.E. in Artificial Intelligence",
+            "M.E. in Machine Learning",
+            "M.E. in Data Science",
+            "M.E. in Cyber Security",
+            "M.E. in Electrical Engineering",
+            "M.E. in Electronics & Communication Engineering",
+            "M.E. in VLSI Design",
+            "M.E. in Embedded Systems",
+            "M.E. in Mechanical Engineering",
+            "M.E. in Thermal Engineering",
+            "M.E. in Design Engineering",
+            "M.E. in Automobile Engineering",
+            "M.E. in Industrial Engineering",
+            "M.E. in Civil Engineering",
+            "M.E. in Geotechnical Engineering",
+            "M.E. in Chemical Engineering",
+            "M.E. in Biotechnology Engineering",
+            "M.E. in Biomedical Engineering",
+            "M.E. in Aerospace Engineering",
+            "M.E. in Aeronautical Engineering",
+            "M.E. in Marine Engineering",
+            "M.E. in Instrumentation Engineering",
+            "M.E. in Robotics Engineering",
+        ]
+    },
+    "PHD": {
+        "PHD": [
+            "Ph.D. in Computer Science & Engineering",
+            "Ph.D. in Information Technology",
+            "Ph.D. in Electrical Engineering",
+            "Ph.D. in Electronics & Communication Engineering",
+            "Ph.D. in Mechanical Engineering",
+            "Ph.D. in Civil Engineering",
+            "Ph.D. in Chemical Engineering",
+            "Ph.D. in Aerospace Engineering",
+            "Ph.D. in Aeronautical Engineering",
+            "Ph.D. in Marine Engineering",
+            "Ph.D. in Biotechnology Engineering",
+            "Ph.D. in Biomedical Engineering",
+            "Ph.D. in Metallurgical Engineering",
+            "Ph.D. in Materials Science & Engineering",
+            "Ph.D. in Industrial Engineering",
+            "Ph.D. in Production Engineering",
+            "Ph.D. in Mechatronics Engineering",
+            "Ph.D. in Automobile Engineering",
+            "Ph.D. in Petroleum Engineering",
+            "Ph.D. in Mining Engineering",
+            "Ph.D. in Agricultural Engineering",
+            "Ph.D. in Environmental Engineering",
+            "Ph.D. in Energy Engineering",
+            "Ph.D. in Instrumentation Engineering",
+            "Ph.D. in Robotics Engineering",
+            "Ph.D. in Nanotechnology",
+            "Ph.D. in Engineering Management",
+            "Ph.D. in Systems Engineering"
+        ]
+    }
+},
+    "Arts": {
+        "UG": {
+            "Bachelor Of Arts (BA)": ["English", "Hindi", "History", "Political Science", "Sociology", "Psychology", "Economics", "Geography", "Philosophy", "Public Administration", "Anthropology", "Theatre / Performing Arts", "Linguistics"],
+            "Bachelor of fine arts (BFA)": ["Painting", "Applied Arts", "Sculpture", "Visual Communication", "Animation", "Graphic Design"],
+            "Bachelor of Design (B.Des)": ["Fashion Design", "Interior Design", "Product Design", "Communication Design", "Textile Design"],
+            "Bachelor of Journalism & Mass Communication (BJMC)": ["NA"],
+            "Bachelor of Social Work (BSW)": ["NA"],
+        },
+        "PG": {
+            "Master Of Arts (MA)": ["English", "Hindi", "History", "Political Science", "Sociology", "Psychology", "Economics", "Geography", "Philosophy", "Public Administration", "Anthropology", "Theatre / Performing Arts", "Linguistics"],
+            "Master of Fine Arts (MFA)": ["Painting", "Applied Arts", "Sculpture", "Visual Communication", "Photography", "Graphic Arts"],
+            "Master of Social Work (MSW)": ["NA"],
+            "Master of Journalism & Mass Communication (MJMC)": ["NA"],
+            "Master of Design (M.Des)":["Fashion Design", "Interior Design", "Product Design", "Communication Design", "Textile Design"],
+            "Master of Education (M.Ed)": ["NA"],
+            "MBA": ["HR", "Marketing", "International Business", "Event Management", "Media Management"]
+        },
+        "PHD": {
+            "PHD": [
+            "Ph.D. in English",
+            "Ph.D. in Hindi",
+            "Ph.D. in Sanskrit",
+            "Ph.D. in Urdu",
+            "Ph.D. in French",
+            "Ph.D. in German",
+            "Ph.D. in Spanish",
+            "Ph.D. in Arabic",
+            "Ph.D. in Persian",
+            "Ph.D. in Linguistics",
+            "Ph.D. in Comparative Literature",
+            "Ph.D. in History",
+            "Ph.D. in Political Science",
+            "Ph.D. in Sociology",
+            "Ph.D. in Psychology",
+            "Ph.D. in Economics",
+            "Ph.D. in Geography",
+            "Ph.D. in Philosophy",
+            "Ph.D. in Anthropology",
+            "Ph.D. in Public Administration",
+            "Ph.D. in International Relations",
+            "Ph.D. in Development Studies",
+            "Ph.D. in Rural Development",
+            "Ph.D. in Gender Studies",
+            "Ph.D. in Peace & Conflict Studies",
+            "Ph.D. in Public Policy",
+            "Ph.D. in Journalism & Mass Communication",
+            "Ph.D. in Film Studies",
+            "Ph.D. in Theatre Studies",
+            "Ph.D. in Music",
+            "Ph.D. in Dance",
+            "Ph.D. in Fine Arts",
+            "Ph.D. in Performing Arts",
+            "Ph.D. in Archaeology",
+            "Ph.D. in Cultural Studies",
+            "Ph.D. in Social Work",
+            "Ph.D. in Library & Information Science",
+            ]
+        }
+    },
+    "Commerce": {
+        "UG": {
+            "Bachelor of Commerce (B.Com)": ["B.Com(General)", "B.Com(Honours)", "Accounting & Finance", "Banking & Insurance", "Taxation", "Business Management", "Corporate Accounting", "Financial Markets", "Computer Applications", "Business Analytics", "Investment Management"],
+            "Bachelor of Business Administration (BBA)": ["General Management", "Finance", "Marketing", "Human Resource Management (HR)", "International Business", "Entrepreneurship", "Business Analytics", "Digital Marketing", "Supply Chain Management", "Retail Management"],
+            "Bachelor of Management Studies (BMS)": ["NA"],
+            "Bachelor of Business Studies (BBS)": ["NA"],
+        },
+        "PG": {
+            "Master Of Commerce (M.Com)": ["M.Com(General)", "Accounting", "Finance", "Taxation", "Banking & Insurance", "International Business", "Business Management", "Financial Markets", "Economics", "Business Analytics"],
+            "Master of Business Administration (MBA)": ["Finance", "Marketing", "Human Resource Management (HR)", "International Business", "Operations Management", "Business Analytics", "Digital Marketing", "Supply Chain Management", "Retail Management", "Entrepreneurship", "Healthcare Management"],
+            "Master of Financial Management (MFM)": ["NA"],
+            "MMS)": ["NA"],
+            "Master of Business Economics (MBE)": ["NA"]
+        },
+        "PHD": {
+            "PHD": [
+            "Ph.D. in Commerce",
+            "Ph.D. in Accounting",
+            "Ph.D. in Finance",
+            "Ph.D. in Banking & Insurance",
+            "Ph.D. in Taxation",
+            "Ph.D. in Business Administration",
+            "Ph.D. in Management",
+            "Ph.D. in Marketing",
+            "Ph.D. in Human Resource Management",
+            "Ph.D. in International Business",
+            "Ph.D. in Business Economics",
+            "Ph.D. in Economics",
+            "Ph.D. in Financial Management",
+            "Ph.D. in Corporate Governance",
+            "Ph.D. in Entrepreneurship",
+            "Ph.D. in Supply Chain Management",
+            "Ph.D. in Operations Management",
+            "Ph.D. in Business Analytics",
+            "Ph.D. in Investment Management",
+            "Ph.D. in Financial Markets",
+            "Ph.D. in Retail Management",
+            "Ph.D. in Insurance Management",
+            "Ph.D. in Accounting & Finance",
+            ]
+        }
+    },
+    "Science": {
+        "UG": {
+            "B.Sc": ["Computer Science", "Mathematics", "Physics", "Chemistry", "Biotechnology","Statistics","Biology","Zoology","Botany","Microbiology","Biotechnology","Biochemistry","Forensic Science","Environmental Science","Geology","Electronics","Information Technology","Nutrition & Dietetics","Agriculture","Horticulture","Forestry","Fisheries Science","Marine Science","Food Technology","Dairy Technology","Nursing"],
+            "B.Arch":[
+                "B.Arch in Architecture",
+                "B.Arch in Interior Architecture",
+                "B.Arch in Landscape Architecture",
+                "B.Arch in Urban Design",
+                "B.Arch in Sustainable Architecture",
+                "B.Arch in Green Architecture",
+                "B.Arch in Building Construction Technology",
+                "B.Arch in Architectural Conservation",
+                "B.Arch in Housing & Urban Planning",
+                "B.Arch in Environmental Architecture",
+                "B.Arch in Digital Architecture",
+                "B.Arch in Industrial Architecture"
+            ],
+            "B.Plan": [
+                "B.Plan in Urban Planning",
+                "B.Plan in Regional Planning",
+                "B.Plan in Town Planning",
+                "B.Plan in Transport Planning",
+                "B.Plan in Infrastructure Planning",
+                "B.Plan in Environmental Planning",
+                "B.Plan in Housing Planning",
+                "B.Plan in Rural Planning",
+                "B.Plan in Urban & Regional Planning",
+                "B.Plan in City Planning"
+        ]
+        },
+        "PG": {
+            "M.Sc": ["Physics","Chemistry","Mathematics","Statistics","Biology","Zoology","Botany","Microbiology", "Biotechnology","Biochemistry","Genetics","Biomedical Science","Forensic Science","Environmental Science","Geology","Electronics","Computer Science","Information Technology","Cyber Security","Nutrition & Dietetics","Agriculture","Horticulture","Forestry","Fisheries Science","Marine Science","Food Technology","Dairy Technology"],
+            "M.Arch": [
+                "M.Arch in Architectural Design",
+                "M.Arch in Interior Architecture",
+                "M.Arch in Landscape Architecture",
+                "M.Arch in Urban Design",
+                "M.Arch in Urban Planning",
+                "M.Arch in Sustainable Architecture",
+                "M.Arch in Environmental Architecture",
+                "M.Arch in Green Architecture",
+                "M.Arch in Building Construction & Management",
+                "M.Arch in Construction Management",
+                "M.Arch in Housing",
+                "M.Arch in Industrial Architecture",
+                "M.Arch in Architectural Conservation",
+                "M.Arch in Digital Architecture",
+                "M.Arch in Infrastructure Planning",
+                "M.Arch in Regional Planning"
+            ],
+            "M.Plan": [
+                "M.Plan in Urban Planning",
+                "M.Plan in Regional Planning",
+                "M.Plan in Town & Country Planning",
+                "M.Plan in Transport Planning",
+                "M.Plan in Infrastructure Planning",
+                "M.Plan in Environmental Planning",
+                "M.Plan in Housing Planning",
+                "M.Plan in Rural Planning",
+                "M.Plan in Urban & Regional Planning",
+                "M.Plan in City Planning",
+                "M.Plan in Urban Development",
+                "M.Plan in Landscape Planning",
+                "M.Plan in Spatial Planning",
+                "M.Plan in Industrial Planning",
+                "M.Plan in Sustainable Planning"
+            ]
+        },
+        "PHD": {
+            "PHD": [
+                "Ph.D. in Physics","Ph.D. in Chemistry","Ph.D. in Mathematics","Ph.D. in Statistics","Ph.D. in Biology","Ph.D. in Zoology","Ph.D. in Botany","Ph.D. in Microbiology","Ph.D. in Biotechnology","Ph.D. in Biochemistry","Ph.D. in Genetics","Ph.D. in Biomedical Science","Ph.D. in Forensic Science","Ph.D. in Environmental Science","Ph.D. in Geology","Ph.D. in Earth Science","Ph.D. in Atmospheric Science","Ph.D. in Oceanography","Ph.D. in Electronics","Ph.D. in Computer Science","Ph.D. in Information Technology","Ph.D. in Data Science","Ph.D. in Artificial Intelligence","Ph.D. in Cyber Security","Ph.D. in Nutrition & Dietetics","Ph.D. in Agriculture","Ph.D. in Horticulture","Ph.D. in Forestry","Ph.D. in Fisheries Science","Ph.D. in Marine Science","Ph.D. in Food Technology","Ph.D. in Dairy Technology","Ph.D. in Astronomy","Ph.D. in Astrophysics","Ph.D. in Pharmacy","Ph.D. in Public Health","Ph.D. in Nursing"]
+        }
+    },
+    "Medical": {
+        "UG": {
+            "MBBS (Bachelor of Medicine & Bachelor of Surgery)": ["NA"],
+            "B.Pharm": ["B.Pharm in Pharmaceutics","B.Pharm in Pharmaceutical Chemistry","B.Pharm in Pharmacology","B.Pharm in Pharmacognosy","B.Pharm in Pharmaceutical Analysis","B.Pharm in Clinical Pharmacy","B.Pharm in Industrial Pharmacy","B.Pharm in Hospital Pharmacy","B.Pharm in Regulatory Affairs","B.Pharm in Quality Assurance","B.Pharm in Pharmaceutical Biotechnology","B.Pharm in Drug Regulatory Affairs","B.Pharm in Pharmaceutical Marketing","B.Pharm in Herbal Drug Technology","B.Pharm in Cosmetic Technology"],
+            "BDS (Bachelor of Dental Surgery)": ["NA"],
+            "BAMS (Bachelor of Ayurvedic Medicine & Surgery)": ["NA"],
+            "BHMS (Bachelor of Homeopathic Medicine & Surgery)": ["NA"],
+            "BUMS (Bachelor of Unani Medicine & Surgery)": ["NA"],
+            "BSMS (Bachelor of Siddha Medicine & Surgery)": ["NA"]
+        },
+        "PG": {
+            "M.Pharm": [ "M.Pharm in Pharmaceutics","M.Pharm in Pharmaceutical Chemistry","M.Pharm in Pharmacology","M.Pharm in Pharmacognosy","M.Pharm in Pharmaceutical Analysis","M.Pharm in Clinical Pharmacy","M.Pharm in Regulatory Affairs" ],
+            "MD": ["MD in General Medicine","MD in Pediatrics","MD in Dermatology","MD in Psychiatry","MD in Radiology","MD in Anesthesiology","MD in Pathology","MD in Microbiology","MD in Pharmacology","MD in Community Medicine","MD in Forensic Medicine","MD in Emergency Medicine","MD in Respiratory Medicine","MD in Geriatrics"],
+            "MS": ["MS in General Surgery","MS in Orthopedics","MS in Obstetrics & Gynecology","MS in Ophthalmology","MS in ENT (Otorhinolaryngology)"],
+            "MDS": ["MDS in Orthodontics","MDS in Oral Surgery","MDS in Prosthodontics","MDS in Periodontics","MDS in Conservative Dentistry & Endodontics","MDS in Oral Pathology","MDS in Pedodontics"]
+        },
+        "PHD": {
+            "PHD": ["Ph.D. in General Medicine","Ph.D. in Pediatrics","Ph.D. in Dermatology","Ph.D. in Psychiatry","Ph.D. in Radiology","Ph.D. in Anesthesiology","Ph.D. in Emergency Medicine","Ph.D. in Respiratory Medicine","Ph.D. in Cardiology","Ph.D. in Neurology","Ph.D. in Oncology","Ph.D. in Anatomy","Ph.D. in Physiology","Ph.D. in Biochemistry","Ph.D. in Pharmacology","Ph.D. in Pathology","Ph.D. in Microbiology","Ph.D. in Forensic Medicine","Ph.D. in Immunology","Ph.D. in Molecular Medicine","Ph.D. in Medical-Surgical Nursing","Ph.D. in Pediatric Nursing","Ph.D. in Obstetrics & Gynecological Nursing","Ph.D. in Psychiatric Nursing","Ph.D. in Community Health Nursing"]
+        }
+    },
+    "Law": {
+        "UG": {
+            "LLB": ["Constitutional Law","Criminal Law","Corporate Law","Civil Law","International Law","Human Rights Law","Intellectual Property Law","Cyber Law","Environmental Law","Labour & Industrial Law"],
+            "BA LLB": ["Constitutional Law","Criminal Law","Corporate Law","International Law","Human Rights Law","Intellectual Property Law"],
+            "BBA LLB": ["Corporate Law","Business Law","Banking & Finance Law","Taxation Law"],
+            "B.Com LLB": ["Corporate Law","Taxation Law","Business Law"],
+            "Bachelor of Law in Cyber Law": ["NA"],
+            "Bachelor of Law in Intellectual Property Rights": ["NA"],
+            "Bachelor of Law in Environmental Law": ["NA"],
+            "Bachelor of Law in Labour Law": ["NA"]
+        },
+        "PG": {
+            "LLM": ["LLM in Constitutional Law","LLM in Criminal Law","LLM in Corporate Law","LLM in Business Law","LLM in International Law","LLM in Human Rights Law","LLM in Intellectual Property Law","LLM in Cyber Law","LLM in Environmental Law","LLM in Labour & Industrial Law","LLM in Taxation Law","LLM in Banking & Finance Law","LLM in Commercial Law","LLM in Maritime Law","LLM in Competition Law","LLM in Energy Law","LLM in Media & Entertainment Law","LLM in Arbitration & Alternative Dispute Resolution","LLM in Consumer Protection Law","LLM in Administrative Law","LLM in Property Law","LLM in Family Law","LLM in Insurance Law","LLM in Public International Law","LLM in Private International Law","LLM in Immigration Law","LLM in Medical & Health Law","LLM in Technology Law","LLM in Securities Law","LLM in Corporate Governance"],
+            "Master of Legal Studies (Corporate Law)": ["NA"],
+            "Master of Legal Studies (Business Law)": ["NA"],
+            "Master of Legal Studies (Cyber Law)": ["NA"],
+            "Master of Business Law (MBL)": ["NA"],
+            "Master of Comparative Law (MCL)": ["NA"]
+        },
+        "PHD": {
+            "PHD": [
+                "Ph.D. in Constitutional Law","Ph.D. in Criminal Law","Ph.D. in Corporate Law","Ph.D. in Business Law","Ph.D. in International Law","Ph.D. in Human Rights Law","Ph.D. in Intellectual Property Law","Ph.D. in Cyber Law","Ph.D. in Environmental Law","Ph.D. in Labour & Industrial Law","Ph.D. in Taxation Law","Ph.D. in Banking & Finance Law","Ph.D. in Commercial Law","Ph.D. in Maritime Law","Ph.D. in Competition Law","Ph.D. in Energy Law","Ph.D. in Media & Entertainment Law","Ph.D. in Arbitration & Alternative Dispute Resolution","Ph.D. in Consumer Protection Law","Ph.D. in Administrative Law","Ph.D. in Property Law","Ph.D. in Family Law","Ph.D. in Insurance Law","Ph.D. in Public International Law","Ph.D. in Private International Law","Ph.D. in Immigration Law","Ph.D. in Medical & Health Law","Ph.D. in Technology Law","Ph.D. in Securities Law","Ph.D. in Corporate Governance","Ph.D. in Comparative Law","Ph.D. in Jurisprudence","Ph.D. in Legal Studies"]
+        }
+    },
+    "Management": {
+        "UG": {
+            "BBA": ["General Management","Finance","Marketing","Human Resource Management","International Business","Entrepreneurship","Business Analytics","Digital Marketing","Operations Management","Supply Chain Management","Retail Management","Hospital Management","Healthcare Management","Aviation Management","Event Management","Logistics Management","Hotel Management","Tourism Management","Family Business Management","Strategic Management"],
+            "BBM": ["Finance","Marketing","Human Resource Management","International Business","Entrepreneurship" ],
+            "BMS": ["Finance","Marketing","Human Resource Management","Business Analytics"],
+            "Bachelor in International Business": ["NA"],
+            "Bachelor in Business Economics": ["NA"],
+            "Bachelor in Financial Management": ["NA"],
+            "Bachelor in Retail Management": ["NA"],
+            "Bachelor in Logistics & Supply Chain Management (Supply Chain Management)": ["NA"]
+        },
+        "PG": {
+            "MBA": ["Finance","Marketing","Human Resource Management","International Business","Operations Management","Business Analytics","Digital Marketing","Supply Chain Management","Entrepreneurship","Retail Management","Healthcare Management","Hospital Management","Aviation Management","Logistics Management","Tourism Management","Strategic Management","Information Technology Management","Project Management","Agri-Business Management","Energy Management","Media Management","Banking & Financial Services","Investment Management","Risk Management","Quality Management","Operations & Supply Chain Management","Family Business Management","Public Policy & Management"],
+            "PGDM": ["Finance","Marketing","Human Resource Management","International Business","Business Analytics","Operations Management","Retail Management","Logistics & Supply Chain Management"],
+            "Master of Management Studies": ["Finance","Marketing","Human Resource Management","Operations Management"],
+        },
+        "PHD": {
+            "PHD": ["Ph.D. in Management (General Management)","Ph.D. in Finance","Ph.D. in Marketing","Ph.D. in Human Resource Management","Ph.D. in International Business","Ph.D. in Operations Management","Ph.D. in Supply Chain Management","Ph.D. in Business Analytics","Ph.D. in Entrepreneurship","Ph.D. in Strategic Management","Ph.D. in Organizational Behavior","Ph.D. in Information Technology Management","Ph.D. in Project Management","Ph.D. in Retail Management","Ph.D. in Logistics Management","Ph.D. in Healthcare Management","Ph.D. in Hospital Management","Ph.D. in Tourism Management","Ph.D. in Aviation Management","Ph.D. in Energy Management","Ph.D. in Media Management","Ph.D. in Banking & Financial Services","Ph.D. in Investment Management","Ph.D. in Risk Management","Ph.D. in Quality Management","Ph.D. in Public Policy & Management","Ph.D. in Family Business Management","Ph.D. in Agri-Business Management","Ph.D. in Business Economics"]
+        }
+    }
+};
+
+const courseTypeSelect = document.getElementById("course_type");
+const streamSelect = document.getElementById("stream");
+const courseSelect = document.getElementById("course");
+const specializationSelect = document.getElementById("specialization");
+
+function resetDropdowns() {
+    courseSelect.innerHTML = '<option value="">Select Course</option>';
+    specializationSelect.innerHTML = '<option value="">Select Specialization</option>';
+}
+
+courseTypeSelect.addEventListener("change", function () {
+    resetDropdowns();
+});
+
+streamSelect.addEventListener("change", function () {
+    resetDropdowns();
+
+    const stream = streamSelect.value;
+    const type = courseTypeSelect.value;
+
+    if (data[stream] && data[stream][type]) {
+        Object.keys(data[stream][type]).forEach(course => {
+            const option = document.createElement("option");
+            option.value = course;
+            option.textContent = course;
+            courseSelect.appendChild(option);
+        });
+    }
+});
+
+courseSelect.addEventListener("change", function () {
+    specializationSelect.innerHTML = '<option value="">Select Specialization</option>';
+
+    const stream = streamSelect.value;
+    const type = courseTypeSelect.value;
+    const course = courseSelect.value;
+
+    if (data[stream] && data[stream][type] && data[stream][type][course]) {
+        data[stream][type][course].forEach(spec => {
+            const option = document.createElement("option");
+            option.value = spec;
+            option.textContent = spec;
+            specializationSelect.appendChild(option);
+        });
+    }
+});
+
+// Prevent selecting past date & time
+const now = new Date();
+now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+document.getElementById("exam_time").min = now.toISOString().slice(0,16);
+</script>
+
+{% endblock %}

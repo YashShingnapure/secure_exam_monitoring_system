@@ -1,0 +1,90 @@
+/* ---------------- GLOBAL PAGE ANIMATION ---------------- */
+body {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------------- BUTTON ANIMATIONS ---------------- */
+button, .btn-primary {
+    transition: all 0.3s ease;
+}
+
+button:hover, .btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* ---------------- CARD ANIMATION ---------------- */
+.card {
+    transition: all 0.35s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* ---------------- TABLE ROW ANIMATION ---------------- */
+table tr {
+    transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+table tr:hover {
+    background-color: rgba(0,0,0,0.03);
+    transform: scale(1.01);
+}
+
+/* ---------------- BADGE PULSE ---------------- */
+.badge.unlocked {
+    animation: pulseGreen 2s infinite;
+}
+
+.badge.locked {
+    animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(0, 200, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 200, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 200, 0, 0); }
+}
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+/* ---------------- LINK ANIMATION ---------------- */
+a {
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #0056ff;
+}
+
+/* ---------------- INPUT FOCUS ---------------- */
+input, select {
+    transition: all 0.25s ease;
+}
+
+input:focus, select:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* ---------------- SMOOTH EVERYTHING ---------------- */
+* {
+    scroll-behavior: smooth;
+}

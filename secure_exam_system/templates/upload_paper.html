@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="center-wrapper">
+    <div class="card" style="width:500px">
+
+        <h3 style="margin-bottom:20px;">Upload Question Paper</h3>
+
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Question Paper (PDF)</label>
+                <input type="file" name="paper" required>
+            </div>
+
+            <div class="form-group">
+                <label>Exam Date & Time</label>
+                <input type="datetime-local" name="exam_time" required>
+            </div>
+
+            <button class="btn">Upload</button>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

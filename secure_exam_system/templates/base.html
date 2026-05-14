@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Exam System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>    
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-left">
+        <h2>Secure Exam System</h2>
+    </div>
+
+    <div class="topbar-right">
+        {% if session.get("university_admin") %}
+            <span class="role">University Admin</span>
+        {% elif session.get("college_id") %}
+            <span class="role">College</span>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+</header>
+
+<main class="dashboard">
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>
